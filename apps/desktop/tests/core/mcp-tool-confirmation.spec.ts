@@ -25,12 +25,15 @@ export default function(pi) {
       const prompt = JSON.stringify(context.messages[index]);
       const finished = context.messages.slice(index + 1).some((m) => m.role === "toolResult");
       const direct = prompt.includes("direct");
+      const large = prompt.includes("large");
       const text = "APPROVAL_TURN_COMPLETE";
       const message = {
         role: "assistant",
         content: finished ? [{ type: "text", text }] : [{ type: "toolCall", id: "approval-" + index,
           name: direct ? "mcp__fixture__write_note" : "codemode",
-          arguments: direct ? { text: "direct" } : { code: 'const result = await tools.mcp__fixture__write_note({text: "nested"}); text(result);' },
+          arguments: direct
+            ? { text: large ? "中文工具参数\\n" + "长参数".repeat(3000) : "direct" }
+            : { code: 'const result = await tools.mcp__fixture__write_note({text: "nested"}); text(result);' },
         }],
         api: model.api, provider: model.provider, model: model.id,
         usage: { input: 1, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 2, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
@@ -105,6 +108,22 @@ test("MCP read-only claims and codemode cannot bypass per-call confirmation", as
     await expect(dialog).toContainText("mcp__fixture__write_note");
     await expect(dialog).toContainText("Confirm this tool call");
     expect(await readFile(marker, "utf8")).toBe("");
+    await dialog.getByTestId("extension-dialog-cancel").click();
+    await expect(page.locator(".process-assistant").last()).toContainText("APPROVAL_TURN_COMPLETE");
+    await idle();
+    expect(await readFile(marker, "utf8")).toBe("");
+
+    await page.getByTestId("composer").fill("direct large call with Chinese parameters");
+    await page.getByTestId("send").click();
+    await expect(dialog).toContainText("中文工具参数");
+    const dialogBounds = await dialog.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, viewportHeight: window.innerHeight };
+    });
+    expect(dialogBounds.top).toBeGreaterThanOrEqual(0);
+    expect(dialogBounds.bottom).toBeLessThanOrEqual(dialogBounds.viewportHeight);
+    await expect(dialog.getByTestId("extension-dialog-confirm")).toBeInViewport();
+    await expect(dialog.getByTestId("extension-dialog-confirm")).toBeVisible();
     await dialog.getByTestId("extension-dialog-cancel").click();
     await expect(page.locator(".process-assistant").last()).toContainText("APPROVAL_TURN_COMPLETE");
     await idle();

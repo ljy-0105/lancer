@@ -2791,9 +2791,13 @@
 
 .extension-dialog {
   width: min(560px, 100%);
-  display: grid;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   padding: 22px;
+  overflow: hidden;
   border-radius: var(--radius-composer);
   background: var(--surface);
   border: 1px solid var(--line);
@@ -2845,15 +2849,26 @@
 }
 
 .extension-dialog__body {
+  min-height: 0;
   margin: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
   color: var(--muted-strong);
+  font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  scrollbar-gutter: stable;
 }
 
 .extension-dialog__options {
+  min-height: 0;
   display: grid;
   gap: 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .extension-dialog__option {
@@ -2883,6 +2898,7 @@
 }
 
 .extension-dialog__actions {
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
