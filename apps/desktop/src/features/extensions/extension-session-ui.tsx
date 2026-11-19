@@ -175,7 +175,7 @@ export function ExtensionDialog({
           {dialog.title}
         </div>
         {dialog.kind === "confirm" ? (
-          <pre className="extension-dialog__body" id={bodyId}>
+          <pre className="extension-dialog__body extension-dialog__body--literal" id={bodyId}>
             {dialog.message}
           </pre>
         ) : null}
