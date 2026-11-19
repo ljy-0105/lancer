@@ -2851,17 +2851,17 @@
 }
 
 .extension-dialog__body {
-  min-width: 0;
-  min-height: 0;
   margin: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
   color: var(--muted-strong);
   font-size: 14px;
   line-height: 1.65;
 }
 
 .extension-dialog__body--literal {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
   font-family: var(--font-mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
